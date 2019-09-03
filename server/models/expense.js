@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const uuidv1 = require('uuid/v1')
 
 const p = path.join(
     path.dirname(process.mainModule.filename),
@@ -29,7 +30,7 @@ module.exports = class Expense {
     }
 
     save() {
-        this.id = Math.random().toString();
+        this.id = uuidv1();
         fs.readFile(p, (err, fileContent) => {
             let expenses = [];
             if (!err) {

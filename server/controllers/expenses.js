@@ -1,6 +1,7 @@
 const Expense = require('../models/expense');
 
 exports.postAddExpense = (req, res, next) => {
+    console.log(req.body);
     var newExpense = new Expense(req.body.amount, req.body.currency, req.body.category, req.body.description);
     newExpense.save();
     res.redirect('/');

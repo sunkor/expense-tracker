@@ -3,7 +3,8 @@
     "nodemon": "*",
     "express": "*",
     "cors": "*",
-    "body-parser": "*"
+    "body-parser": "*",
+    "uuid": "*"
   },
   "scripts": {
     "dev": "nodemon index.js",
