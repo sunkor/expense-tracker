@@ -1,10 +1,15 @@
 const Expense = require('../models/expense');
 
 exports.postAddExpense = (req, res, next) => {
-    console.log(req.body);
     var newExpense = new Expense(req.body.amount, req.body.currency, req.body.category, req.body.description);
-    newExpense.save();
-    res.redirect('/');
+    newExpense.save()
+        .then(result => {
+            console.log(result);
+            res.redirect('/');
+        })
+        .catch(err => {
+            console.log(err);
+        });
 }
 
 exports.deleteDeleteExpense = (req, res, next) => {
@@ -14,18 +19,23 @@ exports.deleteDeleteExpense = (req, res, next) => {
 }
 
 exports.getExpenses = (req, res, next) => {
-    const expenses = Expense.fetchAll(expenses => {
-        res.send(expenses);
-    });
+    return Expense.fetchAll()
+        .then(expenses => {
+            res.send(expenses)
+        })
+        .catch(err => {
+            console.log(err);
+        });
 };
 
 exports.getExpense = (req, res, next) => {
     var expenseId = req.params.expenseId;
-    Expense.findById(expenseId, expense => {
-        if (expense) {
-            res.send(expense);
-        } else {
-            res.send('not found');
-        }
-    });
+    Expense.findById(expenseId)
+        .then(expense => {
+            if (expense) {
+                res.send(expense);
+            } else {
+                res.send('not found');
+            }
+        });
 };

@@ -1,24 +1,5 @@
-const fs = require('fs');
-const path = require('path');
-const uuidv1 = require('uuid/v1')
-
-const p = path.join(
-    path.dirname(process.mainModule.filename),
-    'data',
-    'expenses.json'
-);
-
-
-const getExpensesFromFile = cb => {
-    fs.readFile(p, (err, fileContent) => {
-        if (err) {
-            console.log(err);
-            cb([]);
-        } else {
-            cb(JSON.parse(fileContent));
-        }
-    });
-}
+const getDb = require('../helpers/database').getDb;
+const mongoDb = require('mongodb')
 
 module.exports = class Expense {
 
@@ -30,42 +11,61 @@ module.exports = class Expense {
     }
 
     save() {
-        this.id = uuidv1();
-        fs.readFile(p, (err, fileContent) => {
-            let expenses = [];
-            if (!err) {
-                expenses = JSON.parse(fileContent);
-            } else {
+        const db = getDb();
+        return db.collection('expenses').insertOne(this)
+            .then(result => {
+                console.log(result);
+            })
+            .catch(err => {
                 console.log(err);
-            }
-            expenses.push(this);
-            fs.writeFile(p, JSON.stringify(expenses), (err) => {
-                if (err) {
-                    console.log(err);
-                }
             });
-        });
     }
 
-    static fetchAll(cb) {
-        getExpensesFromFile(cb);
+    static fetchAll() {
+        const db = getDb();
+        return db.collection('expenses').find().toArray()
+            .then(expenses => {
+                console.log(expenses)
+                return expenses;
+            })
+            .catch(err => {
+                console.log(err)
+            });
     }
 
     static deletebyId(expenseId) {
-        getExpensesFromFile(expenses => {
-            const updatedExpenses = expenses.filter(e => e.id != expenseId);
-            fs.writeFile(p, JSON.stringify(updatedExpenses), (err) => {
-                if (err) {
-                    console.log(err);
-                }
+        const db = getDb();
+        return db.collection('expenses').deleteOne({
+                _id: new mongoDb.ObjectID(expenseId)
+            })
+            .then(result => {
+                console.log(result);
+                return result;
+            })
+            .catch(err => {
+                console.log(err);
+                throw err;
             });
-        });
     }
 
-    static findById(expenseId, cb) {
-        getExpensesFromFile(expenses => {
-            const expense = expenses.find(e => e.id == expenseId);
-            cb(expense);
-        });
+    static findById(expenseId) {
+        const db = getDb();
+        return db.collection('expenses').find({
+                _id: new mongoDb.ObjectID(expenseId)
+            })
+            .toArray()
+            .then(expenses => {
+                if (expenses.length > 0) {
+                    console.log(expenses);
+                    return expenses[0];
+                } else {
+                    console.log('no matching id found')
+                    return null;
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                throw err;
+            });
     }
 }

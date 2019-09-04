@@ -4,7 +4,8 @@
     "express": "*",
     "cors": "*",
     "body-parser": "*",
-    "uuid": "*"
+    "mongodb": "*",
+    "axios": "*"
   },
   "scripts": {
     "dev": "nodemon index.js",
